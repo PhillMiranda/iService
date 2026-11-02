@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar — iService</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <main class="wrap">
+    <div class="cartao card-auth">
+      <h1 id="titulo">Entrar</h1>
+      <p class="sub" id="subtitulo">Acesse sua conta para solicitar ou oferecer serviços.</p>
+      <div id="msg"></div>
+
+      <form id="form">
+        <div id="campo-nome" hidden>
+          <label for="nome">Seu nome</label>
+          <input id="nome" type="text" autocomplete="name" placeholder="Como quer ser chamado">
+        </div>
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="email" required>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" autocomplete="current-password" minlength="6" required>
+        <button class="btn" style="width:100%;margin-top:18px" id="enviar" type="submit">Entrar</button>
+      </form>
+
+      <hr>
+      <p class="sub" style="margin:0;text-align:center">
+        <span id="alternar-texto">Ainda não tem conta?</span>
+        <a href="#" id="alternar">Criar conta</a>
+      </p>
+    </div>
+  </main>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>
