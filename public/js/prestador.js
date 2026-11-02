@@ -19,9 +19,38 @@ async function iniciar() {
     return;
   }
 
+  await secaoAssinatura();
   await secaoContato();
   await secaoServicos();
   await secaoSolicitacoes();
+}
+
+// ---------- ASSINATURA / MENSALIDADE ----------
+async function secaoAssinatura() {
+  const { data: a } = await sb.from('assinaturas').select('*').eq('prestador_id', user.id).maybeSingle();
+  if (!a) return;
+  const emDia = a.status === 'ativa' && new Date(a.ativa_ate) >= new Date(new Date().toDateString());
+  const ate = new Date(a.ativa_ate).toLocaleDateString('pt-BR');
+
+  const banner = el('div', { class: `aviso ${emDia ? 'ok' : 'erro'}` },
+    emDia
+      ? `Assinatura ativa — acesso liberado até ${ate}. Plano: ${moeda(a.valor_mensal)}/mês.`
+      : `Assinatura ${a.status === 'cancelada' ? 'cancelada' : 'vencida'} desde ${ate}. Seus serviços estão ocultos no catálogo até a regularização.`
+  );
+  raiz.append(banner);
+
+  const { data: mens } = await sb.from('mensalidades').select('*').eq('prestador_id', user.id).order('competencia', { ascending: false });
+  if (mens?.length) {
+    const linhas = mens.map((m) => el('div', { style: 'display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--linha)' }, [
+      el('span', {}, `${new Date(m.competencia).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })} · vence ${new Date(m.vencimento).toLocaleDateString('pt-BR')}`),
+      el('span', {}, `${moeda(m.valor)} `),
+      el('span', { class: `status ${m.pago ? 'concluida' : 'orcamento_enviado'}` }, m.pago ? 'Pago' : 'Em aberto'),
+    ]));
+    raiz.append(el('details', { style: 'margin-bottom:10px' }, [
+      el('summary', { style: 'cursor:pointer;color:var(--cinza)' }, 'Ver histórico de mensalidades'),
+      el('div', { class: 'cartao', style: 'margin-top:8px' }, linhas),
+    ]));
+  }
 }
 
 async function virarPrestador() {

@@ -60,18 +60,24 @@ export async function exigirLogin() {
 // Monta a barra de navegação em qualquer página
 export async function montarNav(ativa) {
   const user = await usuarioAtual();
+  let admin = false;
+  if (user) { try { const { data } = await sb.rpc('eh_admin'); admin = !!data; } catch { /* ignora */ } }
+
+  const links = [el('a', { href: 'index.html', class: ativa === 'home' ? 'on' : '' }, 'Serviços')];
+  if (user) {
+    links.push(el('a', { href: 'minhas-solicitacoes.html', class: ativa === 'cliente' ? 'on' : '' }, 'Minhas solicitações'));
+    links.push(el('a', { href: 'prestador.html', class: ativa === 'prestador' ? 'on' : '' }, 'Sou prestador'));
+    if (admin) links.push(el('a', { href: 'admin.html', class: ativa === 'admin' ? 'on' : '' }, 'Admin'));
+    links.push(el('a', { href: 'guia-cliente.html', class: ativa === 'ajuda' ? 'on' : '' }, 'Ajuda'));
+    links.push(el('a', { href: '#', onclick: async (e) => { e.preventDefault(); await sb.auth.signOut(); location.href = 'index.html'; } }, 'Sair'));
+  } else {
+    links.push(el('a', { href: 'guia-cliente.html' }, 'Ajuda'));
+    links.push(el('a', { href: 'login.html', class: 'btn-sm' }, 'Entrar'));
+  }
+
   const nav = el('nav', { class: 'nav' }, [
     el('a', { href: 'index.html', class: 'marca' }, 'iService'),
-    el('div', { class: 'links' }, [
-      el('a', { href: 'index.html', class: ativa === 'home' ? 'on' : '' }, 'Serviços'),
-      ...(user
-        ? [
-            el('a', { href: 'minhas-solicitacoes.html', class: ativa === 'cliente' ? 'on' : '' }, 'Minhas solicitações'),
-            el('a', { href: 'prestador.html', class: ativa === 'prestador' ? 'on' : '' }, 'Sou prestador'),
-            el('a', { href: '#', onclick: async (e) => { e.preventDefault(); await sb.auth.signOut(); location.href = 'index.html'; } }, 'Sair'),
-          ]
-        : [el('a', { href: 'login.html', class: 'btn-sm' }, 'Entrar')]),
-    ]),
+    el('div', { class: 'links' }, links),
   ]);
   document.body.prepend(nav);
 }

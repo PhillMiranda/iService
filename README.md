@@ -32,10 +32,15 @@ servicos  ──< servico_modalidades >──────┘
 
 ### 1. Banco (Supabase)
 1. Crie um projeto em https://supabase.com
-2. No **SQL Editor**, cole e rode `supabase/migrations/001_schema.sql`
+2. No **SQL Editor**, rode as migrations na ordem:
+   - `supabase/migrations/001_schema.sql` (schema, RLS, catálogo)
+   - `supabase/migrations/002_assinaturas.sql` (mensalidade e controle de acesso)
 3. Em **Settings → API → Exposed schemas**, adicione `iservice`
 4. (Opcional, para testar rápido) **Authentication → Providers → Email**: desligue
    "Confirm email" enquanto estiver testando
+5. **Torne-se admin:** crie sua conta pelo app, depois rode no SQL Editor
+   `insert into iservice.admins (id) values ('SEU-UUID');`
+   (o UUID está em Authentication → Users, ou `select id, email from auth.users;`)
 
 ### 2. Front-end
 1. Edite `public/js/config.js` com a URL do projeto e a chave **anon** (em Settings → API)
@@ -51,16 +56,36 @@ servicos  ──< servico_modalidades >──────┘
 ## Estrutura
 
 ```
-supabase/migrations/001_schema.sql   schema iservice + RLS + seed de categorias
+supabase/migrations/
+  001_schema.sql                     schema iservice + RLS + seed de categorias
+  002_assinaturas.sql                mensalidade, admin e gate de acesso do prestador
 public/
   index.html / js/home.js            catálogo + busca + filtro por categoria
   login.html / js/login.js           cadastro e login (e-mail + senha)
   servico.html / js/servico.js       detalhe + solicitar (modalidade, agendamento, endereço)
   minhas-solicitacoes.html / .js     cliente acompanha, aprova orçamento, avalia, vê contato
-  prestador.html / js/prestador.js   vira prestador, cadastra contato e serviços, gere pedidos
+  prestador.html / js/prestador.js   vira prestador, status da assinatura, serviços, pedidos
+  admin.html / js/admin.js           painel do admin: mensalidades e acesso dos prestadores
+  guia-cliente.html / guia-prestador.html   guias de uso (ajuda)
   js/supabase.js  js/comum.js         cliente Supabase e helpers
   css/estilo.css
 ```
+
+## Mensalidade e controle de acesso
+
+Cada prestador tem uma **assinatura** (`assinaturas`) com um status e uma data `ativa_ate`.
+Ele está **em dia** enquanto `status = 'ativa'` e `ativa_ate >= hoje` — e só nesse caso seus
+serviços aparecem no catálogo (a regra vive na policy de leitura de `servicos`, via a função
+`prestador_em_dia`). Ao vencer sem pagamento, os serviços **somem sozinhos**; o cadastro
+permanece salvo.
+
+O controle é seu, pela página **Admin** (visível só para quem está em `iservice.admins`):
+
+- **Gerar cobrança** de um mês (`mensalidades`)
+- **Marcar como pago** — estende o acesso automaticamente até o mês seguinte
+- **Suspender** / **Reativar 30 dias** / **Alterar valor**
+
+Novos prestadores ganham **7 dias de teste** ao ativar o cadastro.
 
 ## Fluxo de uma solicitação
 
