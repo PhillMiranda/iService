@@ -18,11 +18,11 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input id="busca" type="search" placeholder="Buscar serviço ou profissional...">
       </div>
-      <div class="local">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-        <select id="cidade" aria-label="Sua cidade"><option value="">Todas as cidades</option></select>
-        <button id="btn-gps" class="btn-sm sec" type="button">Usar minha localização</button>
-      </div>
+      <button id="barra-local" class="barra-local" type="button">
+        <svg class="pin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="bl-txt"><small>Buscando serviços em</small><strong id="local-atual">Escolher local</strong></span>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
     </div>
   </header>
 
@@ -42,6 +42,19 @@
       <div style="margin-top:16px"><a class="btn" href="prestador.html">Quero ser prestador</a></div>
     </div>
   </main>
+
+  <div id="modal-local" class="modal" hidden>
+    <div class="modal-card">
+      <h2 style="margin:0 0 6px">Onde você deseja buscar um serviço?</h2>
+      <p class="sub" style="margin:0 0 18px">Assim mostramos os profissionais que atendem a sua região.</p>
+      <button id="m-gps" class="btn" style="width:100%">Usar minha localização</button>
+      <div class="ou">ou escolha a cidade</div>
+      <select id="m-cidade" aria-label="Cidade"><option value="">Selecione uma cidade</option></select>
+      <button id="m-confirmar" class="btn" style="width:100%;margin-top:12px">Confirmar</button>
+      <button id="m-todas" class="btn sec" style="width:100%;margin-top:8px">Ver todas as cidades</button>
+    </div>
+  </div>
+
   <script src="js/vendor/supabase.umd.js"></script>
   <script type="module" src="js/home.js"></script>
 </body>

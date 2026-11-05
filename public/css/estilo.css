@@ -90,18 +90,31 @@ a:hover { color: var(--marca-2); }
 .barra-busca input::placeholder { color: var(--cinza-2); }
 .barra-busca input:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 4px var(--marca-sombra); }
 
-/* Seletor de cidade */
-.local { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; color: var(--cinza); }
-#btn-gps.on { background: #e7f8f0; color: #0b815a; border-color: #bfeeda; }
-.local svg { color: var(--marca); flex: 0 0 auto; }
-.local select {
-  width: auto; padding: 7px 30px 7px 10px; font-size: 14px; font-weight: 600;
-  border: 1px solid var(--linha-forte); border-radius: 999px; background: var(--surface); color: var(--tinta);
-  cursor: pointer; appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
-  background-repeat: no-repeat; background-position: right 10px center;
+/* Barra de local (topo, estilo app) */
+.barra-local {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; max-width: 100%;
+  background: var(--surface); border: 1px solid var(--linha-forte); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer; text-align: left; transition: border-color 0.12s ease;
 }
-.local select:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px var(--marca-sombra); }
+.barra-local:hover { border-color: var(--marca); }
+.barra-local .pin { color: var(--marca); flex: 0 0 auto; }
+.barra-local .chev { color: var(--cinza-2); flex: 0 0 auto; }
+.barra-local .bl-txt { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.barra-local .bl-txt small { font-size: 11px; color: var(--cinza-2); font-weight: 600; }
+.barra-local .bl-txt strong { font-size: 14px; color: var(--tinta); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Modal de localização */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(20, 16, 12, 0.5); display: grid; place-items: center; padding: 20px; }
+.modal[hidden] { display: none; }
+.modal-card { background: var(--surface); border-radius: var(--raio); padding: 24px; width: 100%; max-width: 420px; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.5); }
+.modal-card h2 { font-size: 20px; }
+.modal-card .ou { display: flex; align-items: center; gap: 10px; color: var(--cinza-2); font-size: 13px; font-weight: 600; margin: 16px 0 12px; }
+.modal-card .ou::before, .modal-card .ou::after { content: ''; height: 1px; background: var(--linha); flex: 1; }
+.modal-card select {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 12px center;
+}
 
 /* ---------- Fileira de ofícios (ícones redondos) ---------- */
 .oficios { display: flex; gap: 16px; overflow-x: auto; padding: 8px 2px 12px; scrollbar-width: none; scroll-snap-type: x proximity; }

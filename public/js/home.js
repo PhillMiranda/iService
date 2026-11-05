@@ -42,52 +42,63 @@ async function carregar() {
     return;
   }
   servicos = data || [];
-  montarCidades();
-  wireGps();
+  preencherCidades();
+  wireModal();
+  atualizarBarra();
+  if (!lerLocal().escolhido) abrirModal();   // primeira visita: pergunta o local
   render();
 }
 
-// Seletor de cidade (opção A). As cidades vêm dos prestadores ativos no catálogo.
-function montarCidades() {
-  const sel = $('#cidade');
+// Preenche as cidades no modal (vêm dos prestadores ativos no catálogo).
+function preencherCidades() {
+  const sel = $('#m-cidade');
   if (!sel) return;
   const cidades = [...new Set(servicos.map((s) => s.prestadores?.atende_cidade).filter(Boolean))].sort();
   const salvo = lerLocal().cidade || '';
   sel.innerHTML = '';
-  sel.append(el('option', { value: '' }, 'Todas as cidades'));
+  sel.append(el('option', { value: '' }, 'Selecione uma cidade'));
   cidades.forEach((c) => sel.append(el('option', { value: c }, c)));
-  sel.value = cidades.includes(salvo) ? salvo : '';
-  // Escolher cidade entra no modo A e limpa as coordenadas do GPS.
-  sel.onchange = () => { salvarLocal({ cidade: sel.value }); refletirGps(); render(); };
+  if (cidades.includes(salvo)) sel.value = salvo;
 }
 
-// Botão de GPS (opção B). Preenche coordenadas e limpa a cidade.
-function wireGps() {
-  const btn = $('#btn-gps');
-  if (!btn) return;
-  refletirGps();
-  btn.onclick = async () => {
-    btn.disabled = true; btn.textContent = 'Localizando...';
+function textoLocal() {
+  const l = lerLocal();
+  if (l.lat != null) return 'Perto de você';
+  if (l.cidade) return l.cidade;
+  return 'Todas as cidades';
+}
+function atualizarBarra() {
+  const alvo = $('#local-atual');
+  if (alvo) alvo.textContent = textoLocal();
+}
+function abrirModal() { const m = $('#modal-local'); if (m) m.hidden = false; }
+function fecharModal() { const m = $('#modal-local'); if (m) m.hidden = true; }
+
+function wireModal() {
+  const aplicar = () => { atualizarBarra(); fecharModal(); render(); };
+  const bar = $('#barra-local'); if (bar) bar.onclick = abrirModal;
+  const modal = $('#modal-local'); if (modal) modal.onclick = (e) => { if (e.target === modal) fecharModal(); };
+
+  const gps = $('#m-gps');
+  if (gps) gps.onclick = async () => {
+    gps.disabled = true; gps.textContent = 'Localizando...';
     const pos = await posicaoAtual();
-    btn.disabled = false;
-    if (!pos) {
-      btn.textContent = 'Não foi possível localizar';
-      setTimeout(refletirGps, 2500);
-      return;
-    }
-    salvarLocal({ lat: pos.lat, lng: pos.lng });
-    const sel = $('#cidade'); if (sel) sel.value = '';
-    refletirGps();
-    render();
+    gps.disabled = false; gps.textContent = 'Usar minha localização';
+    if (!pos) { alert('Não foi possível acessar sua localização. Verifique a permissão do navegador.'); return; }
+    salvarLocal({ escolhido: true, lat: pos.lat, lng: pos.lng });
+    aplicar();
   };
-}
 
-function refletirGps() {
-  const btn = $('#btn-gps');
-  if (!btn) return;
-  const ativo = lerLocal().lat != null;
-  btn.textContent = ativo ? '📍 Perto de você ✓' : 'Usar minha localização';
-  btn.classList.toggle('on', ativo);
+  const conf = $('#m-confirmar');
+  if (conf) conf.onclick = () => {
+    const c = $('#m-cidade').value;
+    if (!c) { alert('Escolha uma cidade ou use a sua localização.'); return; }
+    salvarLocal({ escolhido: true, cidade: c });
+    aplicar();
+  };
+
+  const todas = $('#m-todas');
+  if (todas) todas.onclick = () => { salvarLocal({ escolhido: true }); aplicar(); };
 }
 
 function distServico(s, local) {
