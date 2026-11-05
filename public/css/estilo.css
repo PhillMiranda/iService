@@ -231,6 +231,28 @@ textarea { min-height: 88px; resize: vertical; }
 .contato-box { background: #e7f8f0; border: 1px solid #bfeeda; border-radius: var(--raio-sm); padding: 13px; margin-top: 12px; }
 .contato-box strong { color: #0b815a; }
 .card-auth { max-width: 400px; margin: 40px auto; box-shadow: var(--sombra); }
+
+/* Passos (como funciona) */
+.passos { list-style: none; counter-reset: p; padding: 0; margin: 0; display: grid; gap: 12px; }
+.passos li { counter-increment: p; position: relative; padding: 14px 16px 14px 56px; background: var(--surface); border: 1px solid var(--linha); border-radius: var(--raio-sm); }
+.passos li::before {
+  content: counter(p); position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 50%; background: var(--marca); color: #fff;
+  display: grid; place-items: center; font-weight: 800; font-size: 14px;
+}
+
+/* Plano */
+.plano { max-width: 440px; background: var(--surface); border: 2px solid var(--marca); border-radius: var(--raio); padding: 24px; box-shadow: var(--sombra); }
+.plano-nome { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; }
+.plano-preco { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 40px; color: var(--marca); letter-spacing: -0.02em; }
+.plano-preco span { font-size: 16px; color: var(--cinza); font-weight: 600; }
+.plano-trial { display: inline-block; background: #e7f8f0; color: #0b815a; font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 999px; margin: 6px 0 16px; }
+.plano-itens { list-style: none; padding: 0; margin: 0 0 18px; }
+.plano-itens li { padding: 7px 0 7px 26px; position: relative; border-bottom: 1px solid var(--linha); }
+.plano-itens li::before { content: '✓'; position: absolute; left: 0; color: #0b815a; font-weight: 800; }
+
+/* CTA final */
+.cta-final { text-align: center; background: var(--surface); border: 1px solid var(--linha); border-radius: var(--raio); padding: 36px 24px; margin-top: 36px; box-shadow: var(--sombra); }
 hr { border: 0; border-top: 1px solid var(--linha); margin: 26px 0; }
 details summary { color: var(--cinza); }
 ul { color: var(--tinta); }

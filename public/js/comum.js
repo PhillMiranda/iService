@@ -94,6 +94,7 @@ export async function montarNav(ativa) {
     links.push(el('a', { href: 'guia-cliente.html', class: ativa === 'ajuda' ? 'on' : '' }, 'Ajuda'));
     links.push(el('a', { href: '#', onclick: async (e) => { e.preventDefault(); await sb.auth.signOut(); location.href = 'index.html'; } }, 'Sair'));
   } else {
+    links.push(el('a', { href: 'seja-parceiro.html', class: ativa === 'parceiro' ? 'on' : '' }, 'Seja parceiro'));
     links.push(el('a', { href: 'guia-cliente.html' }, 'Ajuda'));
     links.push(el('a', { href: 'login.html', class: 'btn-sm' }, 'Entrar'));
   }
