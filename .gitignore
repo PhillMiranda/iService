@@ -2,6 +2,8 @@ node_modules/
 .DS_Store
 .vercel
 *.log
-# Dica: a chave anon é pública, mas se preferir não versionar o config real,
-# descomente a linha abaixo e mantenha um public/js/config.js local.
-# public/js/config.js
+.env
+.env.local
+
+# Gerado no build a partir das variáveis de ambiente (não versionar)
+public/js/config.js

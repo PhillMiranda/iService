@@ -42,16 +42,25 @@ servicos  ──< servico_modalidades >──────┘
    `insert into iservice.admins (id) values ('SEU-UUID');`
    (o UUID está em Authentication → Users, ou `select id, email from auth.users;`)
 
-### 2. Front-end
-1. Edite `public/js/config.js` com a URL do projeto e a chave **anon** (em Settings → API)
-2. Suba a pasta `public/` em qualquer host estático. Na Vercel:
-   ```
-   vercel        # ou conecte o repositório pelo painel
-   ```
-3. Localmente, sirva a pasta (os módulos ESM precisam de http, não `file://`):
-   ```
-   npx serve public
-   ```
+### 2. Front-end (Vercel)
+As credenciais vêm de **variáveis de ambiente**; o arquivo `public/js/config.js` é
+gerado no build por `scripts/gerar-config.mjs` (não é versionado).
+
+1. Conecte o repositório na Vercel (ela lê o `vercel.json` automaticamente).
+2. Em **Settings → Environment Variables**, crie:
+   - `SUPABASE_URL` — a Project URL (Settings → API)
+   - `SUPABASE_ANON_KEY` — a chave **anon** / public
+   (a chave `anon` é pública, protegida pelo RLS. **Nunca** use a `service_role` aqui.)
+3. Faça o deploy. O build roda `node scripts/gerar-config.mjs`, gera o `config.js`
+   e publica a pasta `public/`.
+
+### Rodando localmente
+Os módulos ESM precisam de http (não `file://`). Gere o config e sirva a pasta:
+```
+cp public/js/config.example.js public/js/config.js   # e preencha os dois valores
+# ou: export SUPABASE_URL=... SUPABASE_ANON_KEY=... && node scripts/gerar-config.mjs
+npx serve public
+```
 
 ## Estrutura
 

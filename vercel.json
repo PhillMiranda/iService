@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node scripts/gerar-config.mjs",
+  "outputDirectory": "public",
   "cleanUrls": true,
-  "trailingSlash": false,
-  "outputDirectory": "public"
+  "trailingSlash": false
 }
