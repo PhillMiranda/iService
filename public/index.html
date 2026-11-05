@@ -3,21 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>iService — encontre um prestador</title>
+  <title>iService — encontre um profissional</title>
+  <meta name="description" content="Encontre eletricista, maquiadora, professor particular e muito mais, com avaliação de quem já contratou.">
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-  <main class="wrap">
-    <h1>Encontre o profissional certo</h1>
-    <p class="sub">Eletricista, maquiadora, professor particular e muito mais — perto de você.</p>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Serviços sob demanda</p>
+      <h1>Todo profissional que você precisa, <span class="destaque">num lugar só.</span></h1>
+      <p class="sub">Eletricista, maquiadora, professor particular e muito mais — perto de você, com a avaliação de quem já contratou.</p>
 
-    <div class="barra-busca">
-      <input id="busca" type="search" placeholder="Buscar serviço ou profissional...">
+      <div class="barra-busca">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="busca" type="search" placeholder="Buscar serviço ou profissional...">
+      </div>
+      <div class="filtros" id="filtros"></div>
     </div>
-    <div class="filtros" id="filtros"></div>
+  </header>
 
+  <main class="wrap">
+    <div class="secao-titulo">
+      <h2 style="margin:0">Serviços disponíveis</h2>
+      <span class="conta" id="conta"></span>
+    </div>
     <div class="grade" id="lista"></div>
-    <div class="vazio" id="vazio" hidden>Nenhum serviço encontrado.</div>
+    <div class="vazio" id="vazio" hidden>
+      <strong>Nenhum serviço por aqui ainda</strong>
+      Seja o primeiro a oferecer o seu — é rápido de cadastrar.
+      <div style="margin-top:16px"><a class="btn" href="prestador.html">Quero ser prestador</a></div>
+    </div>
   </main>
   <script type="module" src="js/home.js"></script>
 </body>

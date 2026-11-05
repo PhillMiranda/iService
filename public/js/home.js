@@ -1,6 +1,16 @@
 import { sb } from './supabase.js';
 import { $, el, moeda, montarNav } from './comum.js';
 
+// Cada ofício tem sua cor (a assinatura visual). Slug desconhecido usa o acento da marca.
+const COR_OFICIO = {
+  maquiagem: 'var(--c-maquiagem)',
+  eletrica: 'var(--c-eletrica)',
+  hidraulica: 'var(--c-hidraulica)',
+  motorista: 'var(--c-motorista)',
+  aulas: 'var(--c-aulas)',
+};
+const cor = (slug) => COR_OFICIO[slug] || 'var(--marca)';
+
 let servicos = [];
 let categoriaAtiva = null;
 let termo = '';
@@ -28,13 +38,15 @@ async function carregar() {
 function montarFiltros(cats) {
   const box = $('#filtros');
   box.innerHTML = '';
-  const chip = (txt, slug) =>
+  const chip = (txt, slug, todas = false) =>
     el('button', {
-      class: 'chip cat' + (categoriaAtiva === slug ? ' on' : ''),
+      class: 'oficio' + (todas ? ' todas' : '') + (categoriaAtiva === slug ? ' on' : ''),
+      style: `--cat:${slug ? cor(slug) : 'var(--marca)'}`,
       onclick: () => { categoriaAtiva = categoriaAtiva === slug ? null : slug; montarFiltros(cats); render(); },
-    }, txt);
-  box.append(chip('Todas', null));
-  cats.forEach((c) => box.append(chip(`${c.icone || ''} ${c.nome}`.trim(), c.slug)));
+    }, [el('span', { class: 'ponto' }), txt]);
+
+  box.append(chip('Todas', null, true));
+  cats.forEach((c) => box.append(chip(`${c.icone ? c.icone + ' ' : ''}${c.nome}`, c.slug)));
 }
 
 function precoTexto(s) {
@@ -49,25 +61,30 @@ function render() {
   const filtrados = servicos.filter((s) => {
     const okCat = !categoriaAtiva || s.categorias?.slug === categoriaAtiva;
     const alvo = `${s.titulo} ${s.descricao || ''} ${s.prestadores?.perfis?.nome || ''}`.toLowerCase();
-    const okTermo = !termo || alvo.includes(termo);
-    return okCat && okTermo;
+    return okCat && (!termo || alvo.includes(termo));
   });
 
   $('#vazio').hidden = filtrados.length > 0;
+  $('#conta').textContent = filtrados.length
+    ? `${filtrados.length} ${filtrados.length === 1 ? 'serviço' : 'serviços'}`
+    : '';
 
   for (const s of filtrados) {
+    const c = cor(s.categorias?.slug);
     const nota = s.prestadores?.total_avaliacoes
-      ? `★ ${Number(s.prestadores.nota_media).toFixed(1)} (${s.prestadores.total_avaliacoes})`
-      : 'Sem avaliações';
-    const chips = el('div', { class: 'chips' },
-      (s.servico_modalidades || []).map((m) => el('span', { class: 'chip' }, m.modalidades?.nome)));
+      ? el('span', { class: 'nota' }, `★ ${Number(s.prestadores.nota_media).toFixed(1)} (${s.prestadores.total_avaliacoes})`)
+      : el('span', {}, 'Sem avaliações');
 
     lista.append(
-      el('a', { href: `servico.html?id=${s.id}`, class: 'cartao', style: 'display:block;color:inherit' }, [
-        el('div', { class: 'chips' }, [el('span', { class: 'chip cat' }, `${s.categorias?.icone || ''} ${s.categorias?.nome || ''}`.trim())]),
+      el('a', { href: `servico.html?id=${s.id}`, class: 'cartao', style: `--cat:${c}` }, [
+        el('div', { class: 'chips' }, [
+          el('span', { class: 'chip cat' }, [el('span', { class: 'ponto', style: `width:7px;height:7px;border-radius:50%;background:${c};display:inline-block` }), `${s.categorias?.icone ? s.categorias.icone + ' ' : ''}${s.categorias?.nome || ''}`]),
+        ]),
         el('h3', {}, s.titulo),
-        el('p', { class: 'meta' }, `${s.prestadores?.perfis?.nome || 'Prestador'} · ${s.prestadores?.perfis?.cidade || '—'} · ${nota}`),
-        chips,
+        el('p', { class: 'meta' }, [
+          `${s.prestadores?.perfis?.nome || 'Prestador'} · ${s.prestadores?.perfis?.cidade || '—'} · `, nota,
+        ]),
+        el('div', { class: 'chips' }, (s.servico_modalidades || []).map((m) => el('span', { class: 'chip' }, m.modalidades?.nome))),
         el('p', { class: 'preco' }, precoTexto(s)),
       ])
     );
