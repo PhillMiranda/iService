@@ -1,5 +1,5 @@
-import { sb } from './supabase.js?v=2';
-import { $, el, garantirPerfil, validaCPF, formataCPF } from './comum.js?v=2';
+import { sb } from './supabase.js';
+import { $, el, garantirPerfil, validaCPF, formataCPF } from './comum.js';
 
 let modo = 'entrar'; // ou 'cadastrar'
 const params = new URLSearchParams(location.search);

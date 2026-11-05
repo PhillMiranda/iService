@@ -1,2 +1,2 @@
-import { montarNav } from './comum.js?v=2';
+import { montarNav } from './comum.js';
 await montarNav('ajuda');

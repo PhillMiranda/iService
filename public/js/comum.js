@@ -1,4 +1,4 @@
-import { sb } from './supabase.js?v=2';
+import { sb } from './supabase.js';
 
 // Atalhos de DOM
 export const $  = (sel, raiz = document) => raiz.querySelector(sel);

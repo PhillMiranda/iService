@@ -1,5 +1,5 @@
-import { sb } from './supabase.js?v=2';
-import { $, el, moeda, dataHora, montarNav, exigirLogin, ROTULO_STATUS } from './comum.js?v=2';
+import { sb } from './supabase.js';
+import { $, el, moeda, dataHora, montarNav, exigirLogin, ROTULO_STATUS } from './comum.js';
 
 await montarNav('cliente');
 const user = await exigirLogin();
