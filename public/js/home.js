@@ -1,6 +1,6 @@
 import { sb } from './supabase.js';
 import { $, el, moeda, montarNav } from './comum.js';
-import { lerLocal, salvarLocal, dentroDoLocal } from './localizacao.js';
+import { lerLocal, salvarLocal, dentroDoLocal, distanciaKm, posicaoAtual } from './localizacao.js';
 
 // Cada ofício tem sua cor (a assinatura visual). Slug desconhecido usa o acento da marca.
 const COR_OFICIO = {
@@ -43,6 +43,7 @@ async function carregar() {
   }
   servicos = data || [];
   montarCidades();
+  wireGps();
   render();
 }
 
@@ -56,7 +57,51 @@ function montarCidades() {
   sel.append(el('option', { value: '' }, 'Todas as cidades'));
   cidades.forEach((c) => sel.append(el('option', { value: c }, c)));
   sel.value = cidades.includes(salvo) ? salvo : '';
-  sel.onchange = () => { salvarLocal({ ...lerLocal(), cidade: sel.value }); render(); };
+  // Escolher cidade entra no modo A e limpa as coordenadas do GPS.
+  sel.onchange = () => { salvarLocal({ cidade: sel.value }); refletirGps(); render(); };
+}
+
+// Botão de GPS (opção B). Preenche coordenadas e limpa a cidade.
+function wireGps() {
+  const btn = $('#btn-gps');
+  if (!btn) return;
+  refletirGps();
+  btn.onclick = async () => {
+    btn.disabled = true; btn.textContent = 'Localizando...';
+    const pos = await posicaoAtual();
+    btn.disabled = false;
+    if (!pos) {
+      btn.textContent = 'Não foi possível localizar';
+      setTimeout(refletirGps, 2500);
+      return;
+    }
+    salvarLocal({ lat: pos.lat, lng: pos.lng });
+    const sel = $('#cidade'); if (sel) sel.value = '';
+    refletirGps();
+    render();
+  };
+}
+
+function refletirGps() {
+  const btn = $('#btn-gps');
+  if (!btn) return;
+  const ativo = lerLocal().lat != null;
+  btn.textContent = ativo ? '📍 Perto de você ✓' : 'Usar minha localização';
+  btn.classList.toggle('on', ativo);
+}
+
+function distServico(s, local) {
+  const p = s.prestadores || {};
+  if (local?.lat == null || p.latitude == null) return null;
+  return distanciaKm(local, { lat: Number(p.latitude), lng: Number(p.longitude) });
+}
+
+function metaTexto(s) {
+  const nome = s.prestadores?.perfis?.nome || 'Prestador';
+  const cidade = s.prestadores?.perfis?.cidade || '—';
+  const d = distServico(s, lerLocal());
+  const dist = d != null ? ` · a ${d < 10 ? d.toFixed(1).replace('.', ',') : Math.round(d)} km` : '';
+  return `${nome} · ${cidade}${dist}`;
 }
 
 function montarFiltros(cats) {
@@ -83,11 +128,18 @@ function render() {
   const lista = $('#lista');
   lista.innerHTML = '';
   const local = lerLocal();
-  const filtrados = servicos.filter((s) => {
+  let filtrados = servicos.filter((s) => {
     const okCat = !categoriaAtiva || s.categorias?.slug === categoriaAtiva;
     const alvo = `${s.titulo} ${s.descricao || ''} ${s.prestadores?.perfis?.nome || ''}`.toLowerCase();
     return okCat && (!termo || alvo.includes(termo)) && dentroDoLocal(s, local);
   });
+  // Modo B: ordena pelos mais próximos (quem tem distância primeiro)
+  if (local.lat != null) {
+    filtrados = filtrados
+      .map((s) => [s, distServico(s, local)])
+      .sort((a, b) => (a[1] ?? Infinity) - (b[1] ?? Infinity))
+      .map((x) => x[0]);
+  }
 
   $('#vazio').hidden = filtrados.length > 0;
   $('#conta').textContent = filtrados.length
@@ -106,7 +158,7 @@ function render() {
 
     const corpo = el('div', { class: 'corpo' }, [
       el('h3', {}, s.titulo),
-      el('p', { class: 'meta' }, `${s.prestadores?.perfis?.nome || 'Prestador'} · ${s.prestadores?.perfis?.cidade || '—'}`),
+      el('p', { class: 'meta' }, metaTexto(s)),
       el('div', { class: 'chips' }, (s.servico_modalidades || []).map((m) => el('span', { class: 'chip' }, m.modalidades?.nome))),
       el('div', { class: 'rodape' }, [
         el('span', { class: 'preco' }, precoTexto(s)),

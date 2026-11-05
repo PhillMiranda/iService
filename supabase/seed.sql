@@ -80,6 +80,14 @@ begin
   end loop;
 end $$;
 
+-- Coordenadas aproximadas (centro da cidade) para testar a busca por distância (opção B)
+update iservice.prestadores p set latitude = -23.5505, longitude = -46.6333
+  from auth.users u where u.id = p.id and u.email like '%@demo.iservice' and p.atende_cidade = 'São Paulo, SP';
+update iservice.prestadores p set latitude = -23.4543, longitude = -46.5337
+  from auth.users u where u.id = p.id and u.email like '%@demo.iservice' and p.atende_cidade = 'Guarulhos, SP';
+update iservice.prestadores p set latitude = -23.5110, longitude = -46.8760
+  from auth.users u where u.id = p.id and u.email like '%@demo.iservice' and p.atende_cidade = 'Barueri, SP';
+
 -- Conferência rápida
 select c.nome as categoria, s.titulo, p.nome as prestador, pr.nota_media
 from iservice.servicos s

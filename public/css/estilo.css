@@ -91,7 +91,8 @@ a:hover { color: var(--marca-2); }
 .barra-busca input:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 4px var(--marca-sombra); }
 
 /* Seletor de cidade */
-.local { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--cinza); }
+.local { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; color: var(--cinza); }
+#btn-gps.on { background: #e7f8f0; color: #0b815a; border-color: #bfeeda; }
 .local svg { color: var(--marca); flex: 0 0 auto; }
 .local select {
   width: auto; padding: 7px 30px 7px 10px; font-size: 14px; font-weight: 600;

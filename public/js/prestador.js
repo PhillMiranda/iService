@@ -1,5 +1,6 @@
 import { sb } from './supabase.js';
 import { $, el, moeda, dataHora, montarNav, exigirLogin, ROTULO_STATUS } from './comum.js';
+import { geocodificar } from './localizacao.js';
 
 const raiz = $('#conteudo');
 await montarNav('prestador');
@@ -35,11 +36,22 @@ async function secaoAtendimento() {
   const btn = el('button', { class: 'btn-sm', style: 'margin-top:12px' }, 'Salvar atendimento');
   btn.addEventListener('click', async () => {
     btn.disabled = true;
+    const atende = cidade.value.trim() || null;
     const { error } = await sb.from('prestadores').update({
-      atende_cidade: cidade.value.trim() || null,
+      atende_cidade: atende,
       raio_km: raio.value ? Number(raio.value) : null,
     }).eq('id', user.id);
-    msg.innerHTML = error ? `<p class="aviso erro">${error.message}</p>` : '<p class="aviso ok">Área de atendimento salva.</p>';
+    if (error) { msg.innerHTML = `<p class="aviso erro">${error.message}</p>`; btn.disabled = false; return; }
+
+    // Geocodifica a cidade para habilitar a busca por distância (opção B).
+    msg.innerHTML = '<p class="aviso info">Salvo. Localizando no mapa...</p>';
+    const geo = atende ? await geocodificar(`${atende}, Brasil`) : null;
+    if (geo) await sb.from('prestadores').update({ latitude: geo.lat, longitude: geo.lng }).eq('id', user.id);
+    else if (atende) await sb.from('prestadores').update({ latitude: null, longitude: null }).eq('id', user.id);
+
+    msg.innerHTML = geo
+      ? '<p class="aviso ok">Área de atendimento salva e localizada no mapa.</p>'
+      : '<p class="aviso ok">Área de atendimento salva.</p>';
     btn.disabled = false;
   });
   raiz.append(
