@@ -22,7 +22,7 @@ async function carregar() {
   const { data, error } = await sb
     .from('servicos')
     .select(`
-      id, titulo, descricao, tipo_preco, preco,
+      id, titulo, descricao, tipo_preco, preco, imagem_url,
       categorias ( nome, slug, icone ),
       prestadores ( nota_media, total_avaliacoes, perfis ( nome, cidade ) ),
       servico_modalidades ( modalidades ( codigo, nome ) )
@@ -38,15 +38,15 @@ async function carregar() {
 function montarFiltros(cats) {
   const box = $('#filtros');
   box.innerHTML = '';
-  const chip = (txt, slug, todas = false) =>
+  const tile = (icone, rotulo, slug, todas = false) =>
     el('button', {
       class: 'oficio' + (todas ? ' todas' : '') + (categoriaAtiva === slug ? ' on' : ''),
       style: `--cat:${slug ? cor(slug) : 'var(--marca)'}`,
       onclick: () => { categoriaAtiva = categoriaAtiva === slug ? null : slug; montarFiltros(cats); render(); },
-    }, [el('span', { class: 'ponto' }), txt]);
+    }, [el('span', { class: 'circulo' }, icone), el('span', { class: 'rotulo' }, rotulo)]);
 
-  box.append(chip('Todas', null, true));
-  cats.forEach((c) => box.append(chip(`${c.icone ? c.icone + ' ' : ''}${c.nome}`, c.slug)));
+  box.append(tile('✦', 'Todas', null, true));
+  cats.forEach((c) => box.append(tile(c.icone || '•', c.nome, c.slug)));
 }
 
 function precoTexto(s) {
@@ -71,23 +71,26 @@ function render() {
 
   for (const s of filtrados) {
     const c = cor(s.categorias?.slug);
-    const nota = s.prestadores?.total_avaliacoes
-      ? el('span', { class: 'nota' }, `★ ${Number(s.prestadores.nota_media).toFixed(1)} (${s.prestadores.total_avaliacoes})`)
-      : el('span', {}, 'Sem avaliações');
+    const icone = s.categorias?.icone || '•';
 
-    lista.append(
-      el('a', { href: `servico.html?id=${s.id}`, class: 'cartao', style: `--cat:${c}` }, [
-        el('div', { class: 'chips' }, [
-          el('span', { class: 'chip cat' }, [el('span', { class: 'ponto', style: `width:7px;height:7px;border-radius:50%;background:${c};display:inline-block` }), `${s.categorias?.icone ? s.categorias.icone + ' ' : ''}${s.categorias?.nome || ''}`]),
-        ]),
-        el('h3', {}, s.titulo),
-        el('p', { class: 'meta' }, [
-          `${s.prestadores?.perfis?.nome || 'Prestador'} · ${s.prestadores?.perfis?.cidade || '—'} · `, nota,
-        ]),
-        el('div', { class: 'chips' }, (s.servico_modalidades || []).map((m) => el('span', { class: 'chip' }, m.modalidades?.nome))),
-        el('p', { class: 'preco' }, precoTexto(s)),
-      ])
-    );
+    // Banner: imagem do serviço, ou gradiente da categoria com o ícone
+    const banner = el('div', { class: 'banner', style: s.imagem_url ? `--cat:${c};background-image:url("${s.imagem_url}")` : `--cat:${c}` },
+      [el('span', { class: 'selo' }, [el('span', { class: 'ponto' }), s.categorias?.nome || '']),
+       ...(s.imagem_url ? [] : [document.createTextNode(icone)]),
+       ...(s.prestadores?.total_avaliacoes ? [el('span', { class: 'nota-selo' }, `★ ${Number(s.prestadores.nota_media).toFixed(1)}`)] : [])]);
+
+    const corpo = el('div', { class: 'corpo' }, [
+      el('h3', {}, s.titulo),
+      el('p', { class: 'meta' }, `${s.prestadores?.perfis?.nome || 'Prestador'} · ${s.prestadores?.perfis?.cidade || '—'}`),
+      el('div', { class: 'chips' }, (s.servico_modalidades || []).map((m) => el('span', { class: 'chip' }, m.modalidades?.nome))),
+      el('div', { class: 'rodape' }, [
+        el('span', { class: 'preco' }, precoTexto(s)),
+        el('span', { class: 'conta' },
+          s.prestadores?.total_avaliacoes ? `${s.prestadores.total_avaliacoes} avaliações` : 'Novo'),
+      ]),
+    ]);
+
+    lista.append(el('a', { href: `servico.html?id=${s.id}`, class: 'cartao', style: `--cat:${c}` }, [banner, corpo]));
   }
 }
 

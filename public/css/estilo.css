@@ -94,19 +94,24 @@ a:hover { color: var(--marca-2); }
 .barra-busca input::placeholder { color: var(--cinza-2); }
 .barra-busca input:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 4px var(--marca-sombra); }
 
-/* ---------- Filtros de ofício (a assinatura) ---------- */
-.filtros { display: flex; flex-wrap: wrap; gap: 10px; }
+/* ---------- Fileira de ofícios (ícones redondos, estilo app) ---------- */
+.oficios { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 10px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.oficios::-webkit-scrollbar { display: none; }
 .oficio {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 9px 15px; border-radius: 999px; cursor: pointer;
-  font-size: 14px; font-weight: 600; color: var(--tinta);
-  background: var(--surface); border: 1px solid var(--linha-forte);
-  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  flex: 0 0 auto; width: 76px; cursor: pointer; background: none; border: 0; padding: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; scroll-snap-align: start;
 }
-.oficio .ponto { width: 9px; height: 9px; border-radius: 50%; background: var(--cat); }
-.oficio:hover { transform: translateY(-1px); border-color: var(--cat); }
-.oficio.on { background: color-mix(in srgb, var(--cat) 18%, var(--surface)); border-color: var(--cat); }
-.oficio.todas .ponto { background: linear-gradient(135deg, var(--c-maquiagem), var(--c-eletrica), var(--c-hidraulica)); }
+.oficio .circulo {
+  width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; font-size: 26px;
+  background: color-mix(in srgb, var(--cat) 16%, var(--surface));
+  border: 1.5px solid color-mix(in srgb, var(--cat) 38%, transparent);
+  transition: transform 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+}
+.oficio .rotulo { font-size: 12px; font-weight: 600; color: var(--cinza); text-align: center; line-height: 1.2; }
+.oficio.todas .circulo { background: linear-gradient(135deg, var(--c-maquiagem), var(--c-eletrica), var(--c-hidraulica)); color: #1a1a1a; border-color: transparent; }
+.oficio:hover .circulo { transform: translateY(-2px); }
+.oficio.on .circulo { background: var(--cat); color: #1a1a1a; box-shadow: 0 6px 18px -6px var(--cat); }
+.oficio.on .rotulo { color: var(--tinta); }
 
 /* ---------- Conteúdo ---------- */
 .wrap { max-width: 980px; margin: 0 auto; padding: 24px 24px 80px; }
@@ -118,18 +123,37 @@ h3 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size
 .conta { color: var(--cinza-2); font-size: 14px; font-weight: 600; }
 
 /* ---------- Cartões de serviço ---------- */
-.grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 18px; }
+.grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
 .cartao {
   position: relative; overflow: hidden;
   background: var(--surface); border: 1px solid var(--linha); border-radius: var(--raio);
   padding: 20px; box-shadow: var(--sombra);
   transition: transform 0.14s ease, border-color 0.14s ease;
 }
-a.cartao { display: block; color: inherit; }
-.cartao::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cat); opacity: 0.9; }
+a.cartao { display: block; color: inherit; padding: 0; }
 a.cartao:hover { transform: translateY(-3px); border-color: var(--linha-forte); }
-.cartao .meta { color: var(--cinza); font-size: 13px; margin: 2px 0 12px; }
-.cartao .nota { color: var(--c-eletrica); font-weight: 600; }
+
+/* Banner do serviço (imagem ou gradiente da categoria) */
+.cartao .banner {
+  position: relative; height: 128px; display: grid; place-items: center; font-size: 46px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--cat) 60%, #0b0906), color-mix(in srgb, var(--cat) 22%, var(--surface)));
+  background-size: cover; background-position: center;
+}
+.cartao .banner .selo {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(12, 10, 8, 0.72); backdrop-filter: blur(4px);
+  color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.cartao .banner .selo .ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--cat); }
+.cartao .banner .nota-selo {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(12, 10, 8, 0.72); backdrop-filter: blur(4px);
+  color: var(--c-eletrica); font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+}
+.cartao .corpo { padding: 14px 18px 18px; }
+.cartao .meta { color: var(--cinza); font-size: 13px; margin: 2px 0 10px; }
+.cartao .corpo .rodape { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
 .preco { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; color: var(--tinta); font-size: 18px; }
 
 /* ---------- Chips / badges ---------- */
