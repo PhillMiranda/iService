@@ -64,9 +64,9 @@ begin
       ('ana@demo.iservice',    'aulas',      'Inglês conversação',                'Aulas focadas em fala, do básico ao avançado.',            'por_hora',      80::numeric,        array['online'])
     ) as t(email, slug, titulo, descricao, tipo, preco, mods)
   loop
-    select id into uid from iservice.perfis p
+    select p.id into uid from iservice.perfis p
       join auth.users u on u.id = p.id where u.email = srv.email;
-    select id into cat_id from iservice.categorias where slug = srv.slug;
+    select c.id into cat_id from iservice.categorias c where c.slug = srv.slug;
 
     insert into iservice.servicos (prestador_id, categoria_id, titulo, descricao, tipo_preco, preco)
       values (uid, cat_id, srv.titulo, srv.descricao, srv.tipo::iservice.tipo_preco, srv.preco)
