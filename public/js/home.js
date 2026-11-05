@@ -30,7 +30,16 @@ async function carregar() {
     .eq('ativo', true)
     .order('criado_em', { ascending: false });
 
-  if (error) { console.error(error); return; }
+  if (error) {
+    console.error(error);
+    const lista = $('#lista');
+    lista.innerHTML = '';
+    $('#vazio').hidden = true;
+    $('#conta').textContent = '';
+    lista.append(el('div', { class: 'aviso erro', style: 'grid-column:1/-1' },
+      `Não foi possível carregar os serviços: ${error.message || error.hint || 'erro desconhecido'}`));
+    return;
+  }
   servicos = data || [];
   render();
 }
