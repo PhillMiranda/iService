@@ -26,12 +26,12 @@ begin
   -- ---------- Prestadores ----------
   for reg in
     select * from (values
-      ('camila@demo.iservice',  'Camila Rocha',    'São Paulo, SP', 'Maquiadora profissional há 8 anos, especialista em noivas e eventos.', 4.9::numeric, 37),
-      ('jorge@demo.iservice',   'Jorge Mendes',    'Guarulhos, SP', 'Eletricista com registro, atendimento residencial e comercial.',        4.8::numeric, 52),
-      ('paulo@demo.iservice',   'Paulo Henrique',  'São Paulo, SP', 'Bombeiro hidráulico. Caça-vazamento e desentupimento sem quebra-quebra.', 4.7::numeric, 28),
-      ('rafael@demo.iservice',  'Rafael Lima',     'São Paulo, SP', 'Motorista executivo, carro próprio, pontual e discreto.',               5.0::numeric, 12),
-      ('ana@demo.iservice',     'Ana Beatriz',     'Barueri, SP',   'Professora de matemática e inglês, reforço do fundamental ao médio.',     4.9::numeric, 64)
-    ) as t(email, nome, cidade, bio, nota, total)
+      ('camila@demo.iservice',  'Camila Rocha',    'São Paulo, SP', 'Maquiadora profissional há 8 anos, especialista em noivas e eventos.', 4.9::numeric, 37, '13434740430'),
+      ('jorge@demo.iservice',   'Jorge Mendes',    'Guarulhos, SP', 'Eletricista com registro, atendimento residencial e comercial.',        4.8::numeric, 52, '10000606758'),
+      ('paulo@demo.iservice',   'Paulo Henrique',  'São Paulo, SP', 'Bombeiro hidráulico. Caça-vazamento e desentupimento sem quebra-quebra.', 4.7::numeric, 28, '04537736305'),
+      ('rafael@demo.iservice',  'Rafael Lima',     'São Paulo, SP', 'Motorista executivo, carro próprio, pontual e discreto.',               5.0::numeric, 12, '68841548290'),
+      ('ana@demo.iservice',     'Ana Beatriz',     'Barueri, SP',   'Professora de matemática e inglês, reforço do fundamental ao médio.',     4.9::numeric, 64, '40112761704')
+    ) as t(email, nome, cidade, bio, nota, total, cpf)
   loop
     uid := gen_random_uuid();
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password,
@@ -39,7 +39,8 @@ begin
       is_super_admin, confirmation_token, recovery_token, email_change_token_new, email_change)
     values (inst, uid, 'authenticated', 'authenticated', reg.email,
       crypt('demo-123456', gen_salt('bf')), now(), now(), now(),
-      '{"provider":"email","providers":["email"]}', jsonb_build_object('nome', reg.nome),
+      '{"provider":"email","providers":["email"]}',
+      jsonb_build_object('nome', reg.nome, 'cpf', reg.cpf),
       false, '', '', '', '');
 
     insert into iservice.perfis (id, nome, cidade) values (uid, reg.nome, reg.cidade);
