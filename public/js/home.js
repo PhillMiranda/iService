@@ -1,5 +1,5 @@
-import { sb } from './supabase.js';
-import { $, el, moeda, montarNav } from './comum.js';
+import { sb } from './supabase.js?v=2';
+import { $, el, moeda, montarNav } from './comum.js?v=2';
 
 // Cada ofício tem sua cor (a assinatura visual). Slug desconhecido usa o acento da marca.
 const COR_OFICIO = {

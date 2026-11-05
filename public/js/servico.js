@@ -1,5 +1,5 @@
-import { sb } from './supabase.js';
-import { $, el, moeda, montarNav, usuarioAtual } from './comum.js';
+import { sb } from './supabase.js?v=2';
+import { $, el, moeda, montarNav, usuarioAtual } from './comum.js?v=2';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 const raiz = $('#conteudo');
