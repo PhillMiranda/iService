@@ -105,5 +105,5 @@ function render() {
 
 $('#busca').addEventListener('input', (e) => { termo = e.target.value.trim().toLowerCase(); render(); });
 
-await montarNav('home');
-await carregar();
+try { await montarNav('home'); } catch (e) { console.error(e); }
+try { await carregar(); } catch (e) { console.error(e); }

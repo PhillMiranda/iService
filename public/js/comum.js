@@ -32,10 +32,14 @@ export const ROTULO_STATUS = {
   recusada: 'Recusada',
 };
 
-// Usuário logado (ou null)
+// Usuário logado (ou null). Nunca lança: falha de rede/sessão vira "deslogado".
 export async function usuarioAtual() {
-  const { data } = await sb.auth.getUser();
-  return data?.user ?? null;
+  try {
+    const { data } = await sb.auth.getUser();
+    return data?.user ?? null;
+  } catch {
+    return null;
+  }
 }
 
 // Garante que exista uma linha em "perfis" para o usuário logado.
@@ -98,5 +102,5 @@ export async function montarNav(ativa) {
     el('a', { href: 'index.html', class: 'marca' }, 'iService'),
     el('div', { class: 'links' }, links),
   ]);
-  document.body.prepend(nav);
+  try { document.body.prepend(nav); } catch { /* ignora */ }
 }
