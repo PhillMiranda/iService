@@ -60,6 +60,7 @@ a:hover { color: var(--marca-2); }
 .nav .links a { color: var(--cinza); font-weight: 600; font-size: 14px; }
 .nav .links a:hover { color: var(--tinta); }
 .nav .links a.on { color: var(--tinta); }
+.nav .links a.btn-sm, .nav .links a.btn-sm:hover { color: #fff; }
 
 /* ---------- Hero (compacto) ---------- */
 .hero { padding: 40px 24px 10px; background: var(--surface); border-bottom: 1px solid var(--linha); }
