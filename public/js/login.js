@@ -1,5 +1,5 @@
 import { sb } from './supabase.js';
-import { $, el, garantirPerfil } from './comum.js';
+import { $, el, garantirPerfil, validaCPF, formataCPF } from './comum.js';
 
 let modo = 'entrar'; // ou 'cadastrar'
 const params = new URLSearchParams(location.search);
@@ -22,12 +22,16 @@ function aplicarModo() {
     : 'Acesse sua conta para solicitar ou oferecer serviços.';
   $('#campo-nome').hidden = !cadastrar;
   $('#nome').required = cadastrar;
+  $('#campo-cpf').hidden = !cadastrar;
+  $('#cpf').required = cadastrar;
   $('#enviar').textContent = cadastrar ? 'Criar conta' : 'Entrar';
   $('#alternar-texto').textContent = cadastrar ? 'Já tem conta?' : 'Ainda não tem conta?';
   $('#alternar').textContent = cadastrar ? 'Entrar' : 'Criar conta';
   $('#senha').autocomplete = cadastrar ? 'new-password' : 'current-password';
   msg('');
 }
+
+$('#cpf').addEventListener('input', (e) => { e.target.value = formataCPF(e.target.value); });
 
 $('#alternar').addEventListener('click', (e) => {
   e.preventDefault();
@@ -40,11 +44,20 @@ $('#form').addEventListener('submit', async (e) => {
   const email = $('#email').value.trim();
   const senha = $('#senha').value;
   const nome = $('#nome').value.trim();
+  const cpf = $('#cpf').value.replace(/\D/g, '');
+
+  if (modo === 'cadastrar' && !validaCPF(cpf)) {
+    msg('Informe um CPF válido.');
+    return;
+  }
   $('#enviar').disabled = true;
 
   try {
     if (modo === 'cadastrar') {
-      const { data, error } = await sb.auth.signUp({ email, password: senha });
+      const { data, error } = await sb.auth.signUp({
+        email, password: senha,
+        options: { data: { nome, cpf } },
+      });
       if (error) throw error;
       if (data.session) {
         await garantirPerfil(data.user, nome);

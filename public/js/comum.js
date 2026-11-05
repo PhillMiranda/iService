@@ -38,14 +38,33 @@ export async function usuarioAtual() {
   return data?.user ?? null;
 }
 
-// Garante que exista uma linha em "perfis" para o usuário logado
+// Garante que exista uma linha em "perfis" para o usuário logado.
+// O CPF vem do metadado do Auth (preenchido no cadastro), então é guardado
+// no perfil mesmo em logins posteriores.
 export async function garantirPerfil(user, nome) {
   if (!user) return;
-  await sb.from('perfis').upsert(
-    { id: user.id, nome: nome || user.email.split('@')[0] },
-    { onConflict: 'id', ignoreDuplicates: true }
-  );
+  const linha = { id: user.id, nome: nome || user.user_metadata?.nome || user.email.split('@')[0] };
+  const cpf = user.user_metadata?.cpf;
+  if (cpf) linha.cpf = String(cpf).replace(/\D/g, '');
+  await sb.from('perfis').upsert(linha, { onConflict: 'id', ignoreDuplicates: true });
 }
+
+// Validação de CPF (dígitos verificadores). Aceita com ou sem máscara.
+export function validaCPF(valor) {
+  const c = String(valor || '').replace(/\D/g, '');
+  if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+  const dv = (base, pesoInicial) => {
+    let soma = 0;
+    for (let i = 0; i < base.length; i++) soma += Number(base[i]) * (pesoInicial - i);
+    const r = (soma * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return dv(c.slice(0, 9), 10) === Number(c[9]) && dv(c.slice(0, 10), 11) === Number(c[10]);
+}
+
+export const formataCPF = (v) =>
+  String(v || '').replace(/\D/g, '').slice(0, 11)
+    .replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 
 // Redireciona para login se não houver sessão
 export async function exigirLogin() {
