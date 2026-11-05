@@ -1,5 +1,6 @@
 import { sb } from './supabase.js';
 import { $, el, moeda, montarNav } from './comum.js';
+import { lerLocal, salvarLocal, dentroDoLocal } from './localizacao.js';
 
 // Cada ofício tem sua cor (a assinatura visual). Slug desconhecido usa o acento da marca.
 const COR_OFICIO = {
@@ -24,7 +25,7 @@ async function carregar() {
     .select(`
       id, titulo, descricao, tipo_preco, preco, imagem_url,
       categorias ( nome, slug, icone ),
-      prestadores ( nota_media, total_avaliacoes, perfis ( nome, cidade ) ),
+      prestadores ( nota_media, total_avaliacoes, atende_cidade, raio_km, latitude, longitude, perfis ( nome, cidade ) ),
       servico_modalidades ( modalidades ( codigo, nome ) )
     `)
     .eq('ativo', true)
@@ -41,7 +42,21 @@ async function carregar() {
     return;
   }
   servicos = data || [];
+  montarCidades();
   render();
+}
+
+// Seletor de cidade (opção A). As cidades vêm dos prestadores ativos no catálogo.
+function montarCidades() {
+  const sel = $('#cidade');
+  if (!sel) return;
+  const cidades = [...new Set(servicos.map((s) => s.prestadores?.atende_cidade).filter(Boolean))].sort();
+  const salvo = lerLocal().cidade || '';
+  sel.innerHTML = '';
+  sel.append(el('option', { value: '' }, 'Todas as cidades'));
+  cidades.forEach((c) => sel.append(el('option', { value: c }, c)));
+  sel.value = cidades.includes(salvo) ? salvo : '';
+  sel.onchange = () => { salvarLocal({ ...lerLocal(), cidade: sel.value }); render(); };
 }
 
 function montarFiltros(cats) {
@@ -67,10 +82,11 @@ function precoTexto(s) {
 function render() {
   const lista = $('#lista');
   lista.innerHTML = '';
+  const local = lerLocal();
   const filtrados = servicos.filter((s) => {
     const okCat = !categoriaAtiva || s.categorias?.slug === categoriaAtiva;
     const alvo = `${s.titulo} ${s.descricao || ''} ${s.prestadores?.perfis?.nome || ''}`.toLowerCase();
-    return okCat && (!termo || alvo.includes(termo));
+    return okCat && (!termo || alvo.includes(termo)) && dentroDoLocal(s, local);
   });
 
   $('#vazio').hidden = filtrados.length > 0;

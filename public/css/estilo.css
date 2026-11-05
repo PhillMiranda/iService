@@ -90,6 +90,18 @@ a:hover { color: var(--marca-2); }
 .barra-busca input::placeholder { color: var(--cinza-2); }
 .barra-busca input:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 4px var(--marca-sombra); }
 
+/* Seletor de cidade */
+.local { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--cinza); }
+.local svg { color: var(--marca); flex: 0 0 auto; }
+.local select {
+  width: auto; padding: 7px 30px 7px 10px; font-size: 14px; font-weight: 600;
+  border: 1px solid var(--linha-forte); border-radius: 999px; background: var(--surface); color: var(--tinta);
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23717171' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.local select:focus { outline: none; border-color: var(--marca); box-shadow: 0 0 0 3px var(--marca-sombra); }
+
 /* ---------- Fileira de ofícios (ícones redondos) ---------- */
 .oficios { display: flex; gap: 16px; overflow-x: auto; padding: 8px 2px 12px; scrollbar-width: none; scroll-snap-type: x proximity; }
 .oficios::-webkit-scrollbar { display: none; }

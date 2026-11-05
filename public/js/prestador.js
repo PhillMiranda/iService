@@ -21,8 +21,36 @@ async function iniciar() {
 
   await secaoAssinatura();
   await secaoContato();
+  await secaoAtendimento();
   await secaoServicos();
   await secaoSolicitacoes();
+}
+
+// ---------- ÁREA DE ATENDIMENTO (localização) ----------
+async function secaoAtendimento() {
+  const { data } = await sb.from('prestadores').select('atende_cidade, raio_km').eq('id', user.id).maybeSingle();
+  const cidade = el('input', { id: 'at-cidade', type: 'text', value: data?.atende_cidade || '', placeholder: 'Ex.: São Paulo, SP' });
+  const raio = el('input', { id: 'at-raio', type: 'number', min: '1', value: data?.raio_km ?? '', placeholder: 'Ex.: 15' });
+  const msg = el('div');
+  const btn = el('button', { class: 'btn-sm', style: 'margin-top:12px' }, 'Salvar atendimento');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    const { error } = await sb.from('prestadores').update({
+      atende_cidade: cidade.value.trim() || null,
+      raio_km: raio.value ? Number(raio.value) : null,
+    }).eq('id', user.id);
+    msg.innerHTML = error ? `<p class="aviso erro">${error.message}</p>` : '<p class="aviso ok">Área de atendimento salva.</p>';
+    btn.disabled = false;
+  });
+  raiz.append(
+    el('h2', {}, 'Área de atendimento'),
+    el('p', { class: 'sub' }, 'A cidade é usada para mostrar você aos clientes da região. O raio será usado na busca por distância.'),
+    el('div', { class: 'cartao' }, [
+      el('label', {}, 'Cidade de atendimento'), cidade,
+      el('label', {}, 'Raio de atendimento (km) — opcional'), raio,
+      btn, msg,
+    ])
+  );
 }
 
 // ---------- ASSINATURA / MENSALIDADE ----------
